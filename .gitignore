@@ -1,0 +1,45 @@
+# Student Personal Data & Local Exports (Privacy Protection)
+classes/
+userData/
+data/
+config.json
+*_행동특성_*.json
+*_평가결과_*.xlsx
+*.xlsx
+*.xls
+*.csv
+*.json.bak
+*.tmp
+
+# Environment Variables & Secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependencies & Build Outputs
+node_modules
+dist
+dist-ssr
+.vite
+
+# Editor & System Files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
