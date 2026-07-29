@@ -3,427 +3,1032 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>행동특성 및 종합의견 작성 도우미 - 개발 보고서</title>
+  <title>GrowthNote 개발 보고서</title>
   <style>
     :root {
-      --primary: #fee500;
-      --primary-dark: #e0ca00;
-      --bg: #f8f9fa;
-      --card-bg: #ffffff;
-      --text: #212529;
-      --text-muted: #6c757d;
-      --border: #dee2e6;
-      --code-bg: #1e1e1e;
-      --code-color: #d4d4d4;
-      --accent: #2563eb;
-      --success: #28a745;
+      --ink: #221f1c;
+      --paper: #f5f5f5;
+      --white: #ffffff;
+      --azure: #518bdb;
+      --teal: #36bab8;
+      --coral: #ed6d68;
+      --lime: #7efa55;
+      --forest: #1a3a12;
+      --sidebar-w: 280px;
+      --font: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      --mono: 'SF Mono', 'Monaco', 'Consolas', monospace;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Segoe UI", Roboto, "Malgun Gothic", sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      padding: 40px 20px;
-    }
-
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      background: var(--card-bg);
-      padding: 40px 50px;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-      border: 1px solid var(--border);
-    }
-
-    header {
-      border-bottom: 2px solid var(--border);
-      padding-bottom: 20px;
-      margin-bottom: 30px;
-    }
-
-    h1 {
-      font-size: 28px;
-      font-weight: 800;
-      color: #111;
+      font-family: var(--font);
+      background: var(--paper);
+      color: var(--ink);
       display: flex;
-      align-items: center;
-      gap: 12px;
+      min-height: 100vh;
     }
 
-    .badge-tag {
-      background-color: var(--primary);
-      color: #000;
-      font-size: 13px;
-      padding: 4px 10px;
-      border-radius: 8px;
+    /* ── 사이드바 목차 ── */
+    #sidebar {
+      position: fixed;
+      top: 0; left: 0;
+      width: var(--sidebar-w);
+      height: 100vh;
+      background: var(--ink);
+      color: #e8e8e8;
+      overflow-y: auto;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #sidebar-header {
+      padding: 24px 20px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      flex-shrink: 0;
+    }
+
+    #sidebar-header .logo {
+      font-size: 15px;
       font-weight: 700;
+      color: var(--teal);
+      letter-spacing: -0.3px;
     }
 
-    .subtitle {
-      margin-top: 8px;
-      color: var(--text-muted);
-      font-size: 14px;
-    }
-
-    /* Table of Contents */
-    .toc-box {
-      background-color: #f1f3f5;
-      border: 1px solid #e9ecef;
-      border-radius: 12px;
-      padding: 20px 25px;
-      margin-bottom: 35px;
-    }
-
-    .toc-title {
-      font-weight: 700;
-      font-size: 16px;
-      margin-bottom: 12px;
-      color: #333;
-    }
-
-    .toc-list {
-      list-style: none;
-      padding-left: 0;
-    }
-
-    .toc-list li {
-      margin-bottom: 6px;
-      font-size: 14px;
-    }
-
-    .toc-list a {
-      color: var(--accent);
-      text-decoration: none;
-      font-weight: 500;
-    }
-
-    .toc-list a:hover {
-      text-decoration: underline;
-    }
-
-    .toc-sublist {
-      list-style: none;
-      padding-left: 20px;
+    #sidebar-header .subtitle {
+      font-size: 11px;
+      color: #aaa;
       margin-top: 4px;
+      line-height: 1.4;
     }
 
-    /* Section Styling */
+    #sidebar nav {
+      padding: 12px 0 24px;
+    }
+
+    #sidebar nav a {
+      display: block;
+      padding: 7px 20px;
+      font-size: 12.5px;
+      color: #ccc;
+      text-decoration: none;
+      line-height: 1.4;
+      transition: background 0.15s, color 0.15s;
+      border-left: 3px solid transparent;
+    }
+
+    #sidebar nav a:hover,
+    #sidebar nav a.active {
+      background: rgba(255,255,255,0.07);
+      color: var(--teal);
+      border-left-color: var(--teal);
+    }
+
+    #sidebar nav .nav-section {
+      padding: 14px 20px 4px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #666;
+      font-weight: 600;
+    }
+
+    #sidebar nav .nav-sub {
+      padding-left: 32px;
+      font-size: 12px;
+    }
+
+    /* ── 메인 콘텐츠 ── */
+    #main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      padding: 48px 56px 80px;
+      max-width: 960px;
+    }
+
+    /* ── 헤더 ── */
+    .doc-header {
+      background: linear-gradient(135deg, var(--ink) 0%, #3a3530 100%);
+      color: white;
+      border-radius: 14px;
+      padding: 40px 44px;
+      margin-bottom: 44px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .doc-header::after {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(54,186,184,0.25) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .doc-header h1 {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    .doc-header .tagline {
+      font-size: 14px;
+      color: var(--teal);
+      font-weight: 500;
+      margin-bottom: 20px;
+    }
+
+    .meta-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .meta-pill {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px;
+      color: #ddd;
+    }
+
+    .meta-pill a { color: var(--teal); text-decoration: none; }
+    .meta-pill a:hover { text-decoration: underline; }
+
+    /* ── 섹션 ── */
     section {
-      margin-bottom: 40px;
+      margin-bottom: 56px;
+      scroll-margin-top: 32px;
     }
 
     h2 {
       font-size: 20px;
       font-weight: 700;
-      border-left: 5px solid var(--primary-dark);
-      padding-left: 12px;
-      margin-bottom: 16px;
-      color: #111;
+      color: var(--ink);
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--teal);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    h2 .sec-num {
+      background: var(--teal);
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 6px;
+      padding: 2px 8px;
+      flex-shrink: 0;
     }
 
     h3 {
       font-size: 16px;
       font-weight: 700;
-      margin-top: 20px;
-      margin-bottom: 10px;
-      color: #333;
+      color: var(--ink);
+      margin: 28px 0 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h3::before {
+      content: '';
+      display: inline-block;
+      width: 4px; height: 16px;
+      background: var(--coral);
+      border-radius: 2px;
+    }
+
+    h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #444;
+      margin: 20px 0 8px;
     }
 
     p {
+      font-size: 14.5px;
+      line-height: 1.8;
+      color: #3a3630;
       margin-bottom: 12px;
-      font-size: 14px;
     }
 
     ul, ol {
-      padding-left: 24px;
-      margin-bottom: 14px;
-      font-size: 14px;
+      margin: 8px 0 16px 20px;
     }
 
     li {
-      margin-bottom: 6px;
+      font-size: 14px;
+      line-height: 1.75;
+      color: #3a3630;
+      margin-bottom: 4px;
     }
 
-    /* Tables */
+    /* ── 테이블 ── */
     table {
       width: 100%;
       border-collapse: collapse;
-      margin: 16px 0;
-      font-size: 13px;
-    }
-
-    th, td {
-      border: 1px solid var(--border);
-      padding: 10px 14px;
-      text-align: left;
-    }
-
-    th {
-      background-color: #f8f9fa;
-      font-weight: 700;
-    }
-
-    /* Code Blocks */
-    pre {
-      background-color: var(--code-bg);
-      color: var(--code-color);
-      padding: 16px;
+      margin: 16px 0 24px;
+      font-size: 13.5px;
       border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    thead {
+      background: var(--ink);
+      color: white;
+    }
+
+    thead th {
+      padding: 11px 14px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 12.5px;
+    }
+
+    tbody tr:nth-child(even) { background: #fafafa; }
+    tbody tr:hover { background: #f0f9f9; }
+
+    tbody td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #eee;
+      vertical-align: top;
+    }
+
+    /* ── 코드 블록 ── */
+    pre {
+      background: #1e1b18;
+      color: #e8e4e0;
+      border-radius: 10px;
+      padding: 20px 22px;
       overflow-x: auto;
-      font-family: "SF Mono", Consolas, monospace;
+      margin: 12px 0 20px;
       font-size: 13px;
-      margin: 14px 0;
+      font-family: var(--mono);
+      line-height: 1.65;
+      border-left: 4px solid var(--teal);
     }
 
     code {
-      font-family: "SF Mono", Consolas, monospace;
-      background-color: #e9ecef;
-      padding: 2px 6px;
+      background: #f0eeec;
+      color: #c0392b;
       border-radius: 4px;
-      font-size: 12px;
-      color: #d63384;
+      padding: 2px 6px;
+      font-size: 13px;
+      font-family: var(--mono);
     }
 
     pre code {
-      background-color: transparent;
-      padding: 0;
+      background: transparent;
       color: inherit;
+      padding: 0;
     }
 
-    /* Alert Box */
-    .alert-info {
-      background-color: #e7f5ff;
-      border-left: 4px solid #339af0;
-      padding: 14px 18px;
+    /* ── 컬러 칩 ── */
+    .color-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: white;
+      border: 1px solid #e0e0e0;
       border-radius: 6px;
-      margin: 16px 0;
-      font-size: 13.5px;
+      padding: 4px 10px 4px 6px;
+      font-size: 12.5px;
+      font-family: var(--mono);
     }
 
-    .alert-success {
-      background-color: #ebfbee;
-      border-left: 4px solid #40c057;
+    .color-swatch {
+      width: 16px; height: 16px;
+      border-radius: 3px;
+      border: 1px solid rgba(0,0,0,0.15);
+      flex-shrink: 0;
+    }
+
+    .chip-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0 20px;
+    }
+
+    /* ── 뱃지 ── */
+    .badge {
+      display: inline-block;
+      border-radius: 12px;
+      padding: 2px 10px;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+    .badge-teal { background: #e0f7f7; color: #1a7a78; }
+    .badge-coral { background: #fde8e7; color: #b83330; }
+    .badge-lime { background: #e8fee0; color: var(--forest); }
+    .badge-gray { background: #f0f0f0; color: #555; }
+
+    /* ── 경고 박스 ── */
+    .alert {
+      border-radius: 8px;
       padding: 14px 18px;
-      border-radius: 6px;
       margin: 16px 0;
       font-size: 13.5px;
+      line-height: 1.6;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
     }
+    .alert-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+    .alert-warning { background: #fff8e1; border-left: 4px solid #f6a623; }
+    .alert-info    { background: #e8f4fd; border-left: 4px solid var(--azure); }
+    .alert-success { background: #eafbe7; border-left: 4px solid #34c759; }
+
+    /* ── 아키텍처 다이어그램 ── */
+    .arch-box {
+      background: #1e1b18;
+      color: #e8e4e0;
+      border-radius: 10px;
+      padding: 24px;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      line-height: 1.7;
+      overflow-x: auto;
+      border-left: 4px solid var(--azure);
+      margin: 12px 0 20px;
+    }
+
+    /* ── 버전 타임라인 ── */
+    .timeline {
+      position: relative;
+      padding-left: 28px;
+      margin: 8px 0 20px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 7px; top: 6px; bottom: 6px;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--teal), var(--coral));
+      border-radius: 1px;
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: -24px; top: 5px;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--teal);
+      border: 2px solid white;
+      box-shadow: 0 0 0 2px var(--teal);
+    }
+
+    .timeline-item.latest .timeline-dot {
+      background: var(--coral);
+      box-shadow: 0 0 0 2px var(--coral);
+    }
+
+    .timeline-version {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .timeline-date {
+      font-size: 11.5px;
+      color: #888;
+      margin-left: 8px;
+    }
+
+    .timeline-desc {
+      font-size: 13.5px;
+      color: #555;
+      margin-top: 4px;
+      line-height: 1.55;
+    }
+
+    /* ── 반응형 ── */
+    @media (max-width: 900px) {
+      #sidebar { transform: translateX(-100%); transition: transform 0.3s; }
+      #main { margin-left: 0; padding: 24px 20px 60px; }
+    }
+
+    /* ── 스크롤바 ── */
+    #sidebar::-webkit-scrollbar { width: 4px; }
+    #sidebar::-webkit-scrollbar-track { background: transparent; }
+    #sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <header>
-      <h1>
-        <span>행동특성 및 종합의견 작성 도우미</span>
-        <span class="badge-tag">개발 보고서</span>
-      </h1>
-      <p class="subtitle">초등학교 생활기록부 행동특성 작성 도우미 앱 통합 개발 내역 및 유지보수 가이드</p>
-    </header>
+<!-- ══════════ 사이드바 목차 ══════════ -->
+<aside id="sidebar">
+  <div id="sidebar-header">
+    <div class="logo">📋 GrowthNote</div>
+    <div class="subtitle">행동특성 및 종합의견<br>작성 도우미 · 개발 보고서</div>
+  </div>
+  <nav>
+    <div class="nav-section">개요 및 설계</div>
+    <a href="#s1">1. 프로젝트 개요</a>
+    <a href="#s2">2. 기술 스택</a>
+    <a href="#s3">3. 아키텍처 설계</a>
 
-    <!-- 목차 -->
-    <div class="toc-box">
-      <div class="toc-title">📋 목차 (Table of Contents)</div>
-      <ul class="toc-list">
-        <li><a href="#sec1">1. 프로젝트 개요 및 배경</a></li>
-        <li>
-          <a href="#sec2">2. 시스템 아키텍처 및 기술 스택</a>
-          <ul class="toc-sublist">
-            <li><a href="#sec2-1">2.1 Electron 데스크톱 앱 vs Web_version 웹 앱 비교</a></li>
-          </ul>
-        </li>
-        <li>
-          <a href="#sec3">3. 주요 기능 및 사용자 흐름 (Core Features)</a>
-          <ul class="toc-sublist">
-            <li><a href="#sec3-1">3.1 사용자 인증 및 동적 관리자 보안 시스템</a></li>
-            <li><a href="#sec3-2">3.2 학급 및 학생 명단 관리 (엑셀/JSON 입출력)</a></li>
-            <li><a href="#sec3-3">3.3 영역별 행동발달 키워드 선택 및 고대비 칩 디자인</a></li>
-            <li><a href="#sec3-4">3.4 Gemini AI 기반 평어 문장 자동 생성, 문체 스타일 및 문장 다듬기</a></li>
-            <li><a href="#sec3-5">3.5 1+2학기 통합 평가 관리 및 원클릭 복사</a></li>
-            <li><a href="#sec3-6">3.6 관리자 대시보드 (Admin Dashboard)</a></li>
-          </ul>
-        </li>
-        <li>
-          <a href="#sec4">4. 최근 오류 해결 및 성능 최적화 내역</a>
-          <ul class="toc-sublist">
-            <li><a href="#sec4-1">4.1 Windows 입력 포커스 유실 버그 해결</a></li>
-            <li><a href="#sec4-2">4.2 대한민국 표준시(KST/Asia/Seoul) 파일 저장 날짜 오류 수정</a></li>
-            <li><a href="#sec4-3">4.3 상단 메뉴 레이아웃 및 제목 최적화</a></li>
-            <li><a href="#sec4-4">4.4 Gemini API 에러 메시지 한글 순화 처리</a></li>
-            <li><a href="#sec4-5">4.5 Gemini 3.6 Flash 기본 모델 설정 및 thinkingConfig API 규격 최적화</a></li>
-            <li><a href="#sec4-6">4.6 관리자 화면 학생 명단 영역 세로 확장 및 Sticky Header</a></li>
-          </ul>
-        </li>
-        <li>
-          <a href="#sec5">5. 보안 아키텍처 및 GitHub/배포 안전성 점검</a>
-          <ul class="toc-sublist">
-            <li><a href="#sec5-1">5.1 하드코딩 비밀번호 완전 제거</a></li>
-            <li><a href="#sec5-2">5.2 브라우저 로컬 데이터 격리 구조 (Local-First)</a></li>
-            <li><a href="#sec5-3">5.3 GitHub Pages 배포 가이드</a></li>
-          </ul>
-        </li>
-        <li><a href="#sec6">6. 향후 유지보수 및 확장 가이드</a></li>
+    <div class="nav-section">기능 명세</div>
+    <a href="#s4">4. 주요 기능 명세</a>
+    <a href="#s4-1" class="nav-sub">4.1 인증 시스템</a>
+    <a href="#s4-2" class="nav-sub">4.2 학급 및 학생 관리</a>
+    <a href="#s4-3" class="nav-sub">4.3 키워드 선택</a>
+    <a href="#s4-4" class="nav-sub">4.4 AI 평어 생성</a>
+    <a href="#s4-5" class="nav-sub">4.5 문장 다듬기(윤문)</a>
+    <a href="#s4-6" class="nav-sub">4.6 문체 스타일 선택</a>
+    <a href="#s4-7" class="nav-sub">4.7 데이터 내보내기</a>
+    <a href="#s4-8" class="nav-sub">4.8 관리자 대시보드</a>
+
+    <div class="nav-section">기술 상세</div>
+    <a href="#s5">5. 보안 설계</a>
+    <a href="#s6">6. 데이터 모델</a>
+    <a href="#s7">7. 서비스 레이어</a>
+    <a href="#s8">8. 디자인 시스템</a>
+    <a href="#s9">9. AI 프롬프트 설계</a>
+    <a href="#s10">10. KST 날짜 처리</a>
+    <a href="#s11">11. GitHub Actions 배포</a>
+
+    <div class="nav-section">이력 및 계획</div>
+    <a href="#s12">12. 개발 이력</a>
+    <a href="#s13">13. 향후 개선 과제</a>
+  </nav>
+</aside>
+
+<!-- ══════════ 메인 콘텐츠 ══════════ -->
+<main id="main">
+
+  <!-- 헤더 -->
+  <div class="doc-header">
+    <h1>GrowthNote 개발 보고서</h1>
+    <p class="tagline">행동특성 및 종합의견 작성 도우미 — AI-Powered Student Evaluation Studio</p>
+    <div class="meta-pills">
+      <span class="meta-pill">📅 2026-07-30</span>
+      <span class="meta-pill">🌐 <a href="https://poguni.github.io/growth-note/" target="_blank">배포 주소</a></span>
+      <span class="meta-pill">📦 <a href="https://github.com/poguni/growth-note" target="_blank">GitHub 저장소</a></span>
+      <span class="meta-pill">⚙️ Vite 8.1.5 + React 19 + TypeScript</span>
+      <span class="meta-pill">🔒 100% Local-First · BYOK</span>
+    </div>
+  </div>
+
+  <!-- ─── 1. 프로젝트 개요 ─── -->
+  <section id="s1">
+    <h2><span class="sec-num">01</span> 프로젝트 개요</h2>
+    <p>GrowthNote는 초·중·고 담임교사가 학생별 행동특성 및 종합의견(생활기록부 평어)을 효율적으로 작성할 수 있도록 돕는 <strong>AI 기반 웹 애플리케이션</strong>이다.</p>
+
+    <h3>핵심 가치</h3>
+    <ul>
+      <li><strong>Privacy First</strong>: 학생 이름·성별·평어 등 일체의 개인정보가 외부 서버로 전송되지 않고 교사 브라우저의 <code>localStorage</code>에만 저장된다.</li>
+      <li><strong>BYOK (Bring Your Own Key)</strong>: 교사 개인 Google Gemini API Key를 직접 등록하여 사용하므로 중앙 서버 병목 없이 빠른 응답이 보장된다.</li>
+      <li><strong>교육부 기재요령 준수</strong>: 종결 어미(<code>~함.</code>, <code>~임.</code>, <code>~음.</code>, <code>~됨.</code>), 미래지향적 순화 표현, 비교·서열화 금지 원칙을 AI 프롬프트에 내재화했다.</li>
+      <li><strong>1·2학기 연속성 관리</strong>: 1학기 평어를 AI가 맥락으로 참고하여 2학기 평어 작성 시 중복 서술을 자동 회피한다.</li>
+    </ul>
+
+    <h3>개발 동기</h3>
+    <ul>
+      <li>Electron 기반 데스크톱 앱으로 먼저 개발 → 교사 간 공유가 어렵고 설치 부담이 큰 문제를 인식</li>
+      <li>Vite + React + TypeScript 웹 버전으로 전면 재구축</li>
+      <li>GitHub Pages 무료 배포를 통해 URL 하나로 모든 기기에서 접속 가능하도록 개선</li>
+    </ul>
+  </section>
+
+  <!-- ─── 2. 기술 스택 ─── -->
+  <section id="s2">
+    <h2><span class="sec-num">02</span> 기술 스택</h2>
+    <table>
+      <thead>
+        <tr><th>구분</th><th>기술</th><th>버전</th><th>역할</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>빌드 도구</td><td>Vite</td><td>8.1.5</td><td>빠른 HMR 개발 서버, 최적화 프로덕션 빌드</td></tr>
+        <tr><td>UI 프레임워크</td><td>React</td><td>19.x</td><td>컴포넌트 기반 UI 렌더링</td></tr>
+        <tr><td>언어</td><td>TypeScript</td><td>5.x</td><td>타입 안전성 및 개발 생산성</td></tr>
+        <tr><td>스타일링</td><td>Vanilla CSS</td><td>—</td><td>Micro 디자인 시스템 커스텀 토큰</td></tr>
+        <tr><td>아이콘</td><td>Lucide React</td><td>최신</td><td>경량 SVG 아이콘</td></tr>
+        <tr><td>AI 연동</td><td>Google Gemini API</td><td>v1beta</td><td>평어 문장 자동 생성</td></tr>
+        <tr><td>엑셀 처리</td><td>xlsx-js-style</td><td>최신</td><td>학생 명단 업로드·결과 내보내기</td></tr>
+        <tr><td>암호화</td><td>Web Crypto API</td><td>브라우저 내장</td><td>SHA-256 해싱, AES-GCM 암호화</td></tr>
+        <tr><td>CI/CD</td><td>GitHub Actions</td><td>—</td><td>자동 빌드·배포 파이프라인</td></tr>
+        <tr><td>호스팅</td><td>GitHub Pages</td><td>—</td><td>무료 정적 웹 호스팅</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ─── 3. 아키텍처 ─── -->
+  <section id="s3">
+    <h2><span class="sec-num">03</span> 아키텍처 설계</h2>
+    <p>완전한 클라이언트 사이드(SPA) 설계로 서버리스 아키텍처를 채택했다. 유일한 외부 통신은 교사 개인 API Key가 포함된 Google Gemini API 호출뿐이다.</p>
+    <div class="arch-box">
+┌──────────────────────────────────────────────────────────┐
+│                   브라우저 (Client-Side Only)              │
+│                                                          │
+│  ┌─────────────┐  ┌──────────────┐  ┌────────────────┐  │
+│  │  LoginModal  │  │  App.tsx     │  │ AdminDashboard │  │
+│  │  (인증 UI)  │  │  (메인 진입) │  │  (관리자 UI)  │  │
+│  └─────────────┘  └──────┬───────┘  └────────────────┘  │
+│                           │                              │
+│  ┌────────────────────────▼──────────────────────────┐  │
+│  │              컴포넌트 레이어                        │  │
+│  │  ClassSelector │ StudentList │ KeywordSelector     │  │
+│  │  OutputEditor                                      │  │
+│  └────────────────────────┬──────────────────────────┘  │
+│                           │                              │
+│  ┌────────────────────────▼──────────────────────────┐  │
+│  │              서비스 레이어                         │  │
+│  │  authService │ webStorage │ webCrypto              │  │
+│  │  geminiService │ excelService                      │  │
+│  └────────────────────────┬──────────────────────────┘  │
+│                           │                              │
+│  ┌────────────────────────▼──────────────────────────┐  │
+│  │              저장소 (localStorage)                 │  │
+│  │  behavior_report_config                            │  │
+│  │  behavior_report_class_{user}_{class}              │  │
+│  │  behavior_report_classes_list_{user}               │  │
+│  └───────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────┘
+                           │ HTTPS REST (개인 API Key 포함)
+                           ▼
+              ┌────────────────────────┐
+              │  Google Gemini API     │
+              │  generativelanguage    │
+              │  .googleapis.com       │
+              └────────────────────────┘</div>
+  </section>
+
+  <!-- ─── 4. 주요 기능 ─── -->
+  <section id="s4">
+    <h2><span class="sec-num">04</span> 주요 기능 명세</h2>
+
+    <div id="s4-1">
+      <h3>4.1 인증 시스템</h3>
+      <h4>관리자 계정 (admin)</h4>
+      <ul>
+        <li>하드코딩된 비밀번호 없음. <strong>첫 접속 시</strong> 관리자가 직접 비밀번호를 설정하는 온보딩 플로우.</li>
+        <li>설정된 비밀번호는 SHA-256으로 해시화 후 <code>adminPasswordHash</code> 필드에 저장.</li>
+        <li>관리자 로그인 후 교사 계정 관리(목록 조회·비밀번호 초기화·계정 삭제) 가능.</li>
+      </ul>
+      <h4>교사 계정</h4>
+      <ul>
+        <li>회원가입 시 아이디 중복 확인 → SHA-256 해시 저장 → <code>users</code> 맵에 기록.</li>
+        <li>로그인 성공 시 세션 메모리에 평문 비밀번호 임시 보관 → API Key AES 복호화에 활용.</li>
+        <li>이전 버전 단일 교사 계정(<code>passwordHash</code>)과의 하위 호환성 유지.</li>
+      </ul>
+      <h4>API Key 보관</h4>
+      <ul>
+        <li><strong>"이 브라우저에 안전하게 저장" 체크 시</strong>: AES-GCM 암호화 후 <code>encryptedKey</code>로 저장. 비밀번호 없이는 복호화 불가.</li>
+        <li><strong>미체크 시</strong>: 세션 메모리(React state)에만 임시 보관 → 탭 종료 시 자동 소멸.</li>
       </ul>
     </div>
 
-    <!-- 1. 프로젝트 개요 -->
-    <section id="sec1">
-      <h2>1. 프로젝트 개요 및 배경</h2>
-      <p>초등학교 생활기록부의 '행동특성 및 종합의견' 난은 학생 개개인의 인성, 학교생활, 교과학습 성향을 객관적이고 긍정적인 문체로 서술해야 하는 담임교사의 핵심 교무 작업입니다.</p>
-      <p>본 프로젝트는 교사의 평어 작성 부담을 획기적으로 줄이고, 교육부 '학교생활기록부 기재 요령' 기준을 완벽히 준수하는 고품질 평가 문장을 AI(Google Gemini)를 통해 자동 생성·편집할 수 있도록 개발되었습니다.</p>
-    </section>
+    <div id="s4-2">
+      <h3>4.2 학급 및 학생 관리</h3>
+      <h4>자동 저장 메커니즘</h4>
+      <p><code>students</code> state 변경 시 600ms 디바운스 타이머 후 <code>saveClassData()</code> 자동 호출. 학생 이동 시 즉시 저장 보장.</p>
+      <h4>학생 데이터 구조</h4>
+      <pre><code>interface StudentData {
+  number: number;      // 출석 번호
+  name: string;        // 이름
+  gender: string;      // 성별 ('남' | '여')
+  keywords?: string[]; // 1학기 선택 키워드
+  keywords2?: string[];// 2학기 선택 키워드
+  comments?: string;   // 1학기 특이사항
+  comments2?: string;  // 2학기 특이사항
+  report?: string;     // 1학기 최종 평어
+  report2?: string;    // 2학기 최종 평어
+  completed?: boolean; // 작성 완료 여부
+}</code></pre>
+      <h4>엑셀 명단 업로드</h4>
+      <ul>
+        <li><code>xlsx-js-style</code> 라이브러리로 클라이언트 사이드 파싱.</li>
+        <li>컬럼 키: <code>번호</code>, <code>이름</code>, <code>성별</code> (trim 후 매칭).</li>
+        <li>기존 데이터 존재 시 덮어쓰기 전 confirm 대화상자로 데이터 손실 방지.</li>
+      </ul>
+    </div>
 
-    <!-- 2. 시스템 아키텍처 -->
-    <section id="sec2">
-      <h2>2. 시스템 아키텍처 및 기술 스택</h2>
-      <h3 id="sec2-1">2.1 Electron 데스크톱 앱 vs Web_version 웹 앱 비교</h3>
-      <p>본 프로젝트는 **Electron 기반 로컬 앱**과 **순수 브라우저 구동 Web 앱(Web_version)** 두 가지 환경을 모두 지원하도록 설계되었습니다.</p>
-      
+    <div id="s4-3">
+      <h3>4.3 행동특성 키워드 선택</h3>
       <table>
-        <thead>
-          <tr>
-            <th>구분</th>
-            <th>Electron 데스크톱 버전</th>
-            <th>Web_version 웹 앱 버전</th>
-          </tr>
-        </thead>
+        <thead><tr><th>영역 탭</th><th>최대 선택</th></tr></thead>
         <tbody>
-          <tr>
-            <td><strong>구동 환경</strong></td>
-            <td>Windows OS 데스크톱 앱 (Electron v42.4)</td>
-            <td>모든 웹 브라우저 (Chrome, Edge, Safari 등)</td>
-          </tr>
-          <tr>
-            <td><strong>프론트엔드</strong></td>
-            <td>React v19, TypeScript, Vite, Vanilla CSS</td>
-            <td>React v19, TypeScript, Vite, Vanilla CSS</td>
-          </tr>
-          <tr>
-            <td><strong>데이터 저장소</strong></td>
-            <td>Node.js fs (AppData/Roaming/BehaviorReport/)</td>
-            <td>브라우저 localStorage (Local-First)</td>
-          </tr>
-          <tr>
-            <td><strong>암호화 모듈</strong></td>
-            <td>Node.js crypto (pbkdf2Sync, aes-256-cbc)</td>
-            <td>웹 표준 Web Crypto API (crypto.subtle)</td>
-          </tr>
-          <tr>
-            <td><strong>엑셀 처리</strong></td>
-            <td>Node.js native dialog + xlsx-js-style</td>
-            <td>HTML5 File API + Blob + xlsx-js-style</td>
-          </tr>
-          <tr>
-            <td><strong>AI 연동</strong></td>
-            <td>Main Process HTTPS 프록시 요청</td>
-            <td>Browser Direct fetch() REST API 호출</td>
-          </tr>
+          <tr><td>인성 영역</td><td>3개</td></tr>
+          <tr><td>학교생활 영역</td><td>3개</td></tr>
+          <tr><td>교과학습 영역</td><td>3개</td></tr>
         </tbody>
       </table>
-    </section>
-
-    <!-- 3. 주요 기능 -->
-    <section id="sec3">
-      <h2>3. 주요 기능 및 사용자 흐름 (Core Features)</h2>
-      
-      <h3 id="sec3-1">3.1 사용자 인증 및 동적 관리자 보안 시스템</h3>
-      <ul>
-        <li><strong>선생님 계정 가입/로그인</strong>: 아이디와 비밀번호(영어+숫자 10자리 이상)로 등록하며, 패스워드는 SHA-256으로 해싱되어 저장됩니다.</li>
-        <li><strong>최초 관리자 비밀번호 설정</strong>: 소스 코드 내부의 하드코딩 비밀번호를 제거하여, 관리자 첫 접속 시 사용자가 스스로 안전한 관리자 비밀번호를 등록하도록 구성하였습니다.</li>
-      </ul>
-
-      <h3 id="sec3-2">3.2 학급 및 학생 명단 관리 (엑셀/JSON 입출력)</h3>
-      <ul>
-        <li><strong>학급 생성/선택/삭제</strong>: 학년과 반(예: 5학년 3반)을 등록하여 학급별 독립 데이터 관리.</li>
-        <li><strong>엑셀 업로드/양식 다운로드</strong>: 기본 템플릿(.xlsx)을 제공하며, 명단을 한 번에 읽어와 순번/이름/성별로 자동 등록합니다.</li>
-        <li><strong>JSON 데이터 저장/불러오기</strong>: 사용자의 '다운로드' 폴더에 <code>[학년반]_행동특성_종합의견_[날짜].json</code> 파일로 즉시 백업 및 불러오기 가능.</li>
-      </ul>
-
-      <h3 id="sec3-3">3.3 영역별 행동발달 키워드 선택 및 고대비 칩 디자인</h3>
-      <ul>
-        <li><strong>3대 영역 구분</strong>: 인성 영역, 학교생활 영역, 교과학습 영역으로 분류 (영역당 최대 2개 선택 제한).</li>
-        <li><strong>고대비 칩 버튼 스타일</strong>: 선택 안 됨(소프트 중립 회색 <code>#F1F5F9</code>), 선택됨(<strong>선명한 카카오 옐로우 <code>#FEE500</code> + 딥 챠콜 <code>#191919</code> Bold</strong>) 디자인을 적용하여 뚜렷한 시인성을 확보하였습니다.</li>
-      </ul>
-
-      <h3 id="sec3-4">3.4 Gemini AI 기반 평어 문장 자동 생성, 문체 스타일 및 문장 다듬기</h3>
-      <ul>
-        <li><strong>기본 모델</strong>: 가장 빠르고 효율적인 <code>gemini-3.6-flash</code>를 기본 모델로 지정.</li>
-        <li><strong>문체 스타일 선택</strong>: <code>담백·자연스러움 (추천)</code>, <code>표준·격식형</code>, <code>칭찬·성장 강조형</code> 드롭다운 지원.</li>
-        <li><strong>문장 다듬기 (윤문 기능)</strong>: 생성된 평어 문장에서 AI 특유의 딱딱한 표현을 제거하고 사람이 직접 쓴 것 같은 어조로 다듬는 실시간 윤문 기능 탑재.</li>
-      </ul>
-
-      <h3 id="sec3-5">3.5 1+2학기 통합 평가 관리 및 원클릭 복사</h3>
-      <ul>
-        <li><strong>1학기/2학기 탭 전환</strong>: 2학기 평어 작성 시 1학기 평어 내용을 참고 문맥으로 자동 전달하여 문장 중복 방지.</li>
-        <li><strong>1+2학기 전체 복사</strong>: 생활기록부 입력 시스템에 바로 붙여넣을 수 있도록 1학기+2학기 합본 문장 클립보드 복사 지원.</li>
-      </ul>
-
-      <h3 id="sec3-6">3.6 관리자 대시보드 (Admin Dashboard)</h3>
-      <ul>
-        <li>선생님 목록 열람, 특정 교사 비밀번호 초기화(<code>assess1234</code>), 교사 삭제.</li>
-        <li>등록된 학급별 학생 평가 현황 테이블 조회.</li>
-        <li><strong>높이 확장 및 Sticky Header</strong>: 세로 420px~520px로 확장하고 헤더 고정 스크롤을 적용하여 10명 이상의 학생 현황을 한눈에 파악 가능.</li>
-      </ul>
-    </section>
-
-    <!-- 4. 오류 해결 및 최적화 내역 -->
-    <section id="sec4">
-      <h2>4. 최근 오류 해결 및 성능 최적화 내역</h2>
-      <h3 id="sec4-1">4.1 Windows 입력 포커스 유실 버그 해결</h3>
-      <p>alert, confirm, file input 등 native 대화상자 종료 후 Windows OS에서 창 포커스를 잃어 입력창이 얼어붙는 현상을 방지하기 위해 <code>mainWindow.blur()</code> + <code>mainWindow.focus()</code> 사이클을 강제 실행하도록 보완했습니다.</p>
-
-      <h3 id="sec4-2">4.2 대한민국 표준시(KST/Asia/Seoul) 파일 저장 날짜 오류 수정</h3>
-      <p>기존 <code>new Date().toISOString()</code> 사용 시 UTC 시차로 인해 한국 시각 자정 이후 저장 파일명 뒤에 어제 날짜(20260729)가 붙던 현상을 <strong>Korea Standard Time(KST/Asia/Seoul) 기준 날짜 변환</strong>으로 수정하여 항상 정확하게 오늘 날짜(20260730)가 출력되도록 고쳤습니다.</p>
-
-      <h3 id="sec4-3">4.3 상단 메뉴 레이아웃 및 제목 최적화</h3>
-      <p>헤더 메뉴의 동선을 학급선택 → 엑셀/JSON 데이터 연동 → AI 설정 → 로그아웃 순으로 직관적으로 개선했습니다.</p>
-
-      <h3 id="sec4-4">4.4 Gemini API 에러 메시지 한글 순화 처리</h3>
-      <p>트래픽 폭주, Quota 초과, API Key 유효성 오류 등을 교사가 이해하기 쉬운 친절한 한글 안내문으로 순화하여 안내합니다.</p>
-
-      <h3 id="sec4-5">4.5 Gemini 3.6 Flash 기본 모델 설정 및 thinkingConfig API 규격 최적화</h3>
-      <p>최신 `gemini-3.6-flash` 모델 연동 시, Google Gemini REST API v1beta 규격에 맞춰 <code>generationConfig</code> 내부에 <code>thinkingConfig: { thinkingLevel: 'MEDIUM' }</code> 및 <code>role: 'user'</code> 구조로 전송되도록 최적화하여 <code>Unknown name "thinkingConfig"</code> API 스키마 오류를 해결했습니다.</p>
-
-      <h3 id="sec4-6">4.6 관리자 화면 학생 명단 영역 세로 확장 및 Sticky Header</h3>
-      <p>관리자 화면의 학생 명단 영역 높이를 420px로 확장하고 `position: sticky` 헤더를 도입하여 대규모 학급 관리를 원활히 했습니다.</p>
-    </section>
-
-    <!-- 5. 보안 및 배포 -->
-    <section id="sec5">
-      <h2>5. 보안 아키텍처 및 GitHub/배포 안전성 점검</h2>
-      <h3 id="sec5-1">5.1 하드코딩 비밀번호 완전 제거</h3>
-      <p>기존 소스 코드 상에 존재하던 <code>ADMIN_PW</code> 기본값을 전면 삭제하고, 최초 접속 시 개별 설정하도록 전환했습니다.</p>
-
-      <h3 id="sec5-2">5.2 브라우저 로컬 데이터 격리 구조 (Local-First)</h3>
-      <div class="alert-success">
-        <strong>🔒 개인정보 100% 안전보장:</strong> 모든 학생 개인정보 및 평어 데이터는 **각 사용자의 브라우저(localStorage)**에만 독립적으로 보관됩니다. 소스 코드를 GitHub Public으로 전 세계에 공개해도 학생 정보가 유출될 수 없습니다.
+      <h4>선택 칩 스타일</h4>
+      <div class="chip-grid">
+        <div class="color-chip"><div class="color-swatch" style="background:#e8e8e8;"></div>#e8e8e8 미선택</div>
+        <div class="color-chip"><div class="color-swatch" style="background:#7efa55;"></div>#7efa55 Live Lime 선택</div>
+        <div class="color-chip"><div class="color-swatch" style="background:#1a3a12;"></div>#1a3a12 Forest Edge 텍스트</div>
       </div>
+    </div>
 
-      <h3 id="sec5-3">5.3 GitHub Pages 배포 가이드</h3>
-      <pre><code>// Web_version/vite.config.ts
-export default defineConfig({
-  plugins: [react()],
-  base: '/BehaviorReport/', // 저장소 이름 지정
-})</code></pre>
-    </section>
-
-    <!-- 6. 향후 유지보수 -->
-    <section id="sec6">
-      <h2>6. 향후 유지보수 및 확장 가이드</h2>
+    <div id="s4-4">
+      <h3>4.4 Gemini AI 평어 생성</h3>
+      <table>
+        <thead><tr><th>모델</th><th>특징</th><th>기본값</th></tr></thead>
+        <tbody>
+          <tr><td><code>gemini-3.6-flash</code></td><td>최신 사고 모델 (<code>thinkingLevel: MEDIUM</code>)</td><td><span class="badge badge-teal">✅ 기본값</span></td></tr>
+          <tr><td><code>gemini-2.5-flash</code></td><td>균형형 범용 모델 (<code>temperature: 0.6</code>)</td><td>—</td></tr>
+          <tr><td><code>gemini-3.5-flash</code></td><td>경량 빠른 모델 (<code>temperature: 0.6</code>)</td><td>—</td></tr>
+        </tbody>
+      </table>
+      <h4>에러 핸들링 (한국어 친화적)</h4>
       <ul>
-        <li><strong>신규 모델 추가</strong>: <code>App.tsx</code>의 드롭다운 <code>&lt;option&gt;</code> 항목 추가 및 <code>geminiService.ts</code> 파라미터 분기.</li>
-        <li><strong>키워드 및 프롬프트 커스텀</strong>: <code>KeywordSelector.tsx</code> 내 <code>KEYWORDS_DATA</code> 배열 및 <code>App.tsx</code>의 <code>systemInstruction</code> 문구 수정.</li>
+        <li>서버 과부하 → "잠시 후 다시 시도해 주세요" 안내</li>
+        <li>할당량 초과 → "약 1분 뒤 다시 시도" 안내</li>
+        <li>잘못된 API Key → Key 재설정 유도</li>
+        <li>지역 미지원 → VPN 확인 안내</li>
       </ul>
-    </section>
-  </div>
+    </div>
 
+    <div id="s4-5">
+      <h3>4.5 문장 다듬기(윤문) 기능</h3>
+      <p><strong>🪄 문장 다듬기</strong> 버튼 클릭 시 기존 평어를 별도의 윤문 프롬프트로 Gemini에 전송하여 자연스럽게 교정한다.</p>
+      <ul>
+        <li>AI 상투어 제거: <code>뛰어난</code>, <code>탁월한</code>, <code>빛나는</code>, <code>훌륭한</code> 등</li>
+        <li>추상적 미사여구 → 교실 관찰 기반 구체적 서술로 전환</li>
+        <li>교육부 종결 어미 원칙 유지</li>
+        <li>문장 길이(byte) 원문 대비 ±15% 이내 제한</li>
+      </ul>
+    </div>
+
+    <div id="s4-6">
+      <h3>4.6 문체 스타일 선택</h3>
+      <table>
+        <thead><tr><th>스타일</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge badge-teal">기본값</span> 담백·자연스러움</td><td>AI 미사여구 제거, 사실 중심 자연스러운 서술</td></tr>
+          <tr><td>표준·격식형</td><td>생기부 기재요령 표준 어조, 공식적</td></tr>
+          <tr><td>칭찬·성장 강조형</td><td>장점·가능성 중심의 따뜻한 서술</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div id="s4-7">
+      <h3>4.7 데이터 내보내기 및 가져오기</h3>
+      <ul>
+        <li><strong>JSON 백업</strong>: <code>{학급명}_행동특성_종합의견_{YYYYMMDD}.json</code></li>
+        <li><strong>JSON 복원</strong>: FileReader로 파싱하여 현재 학급 데이터에 덮어씌움</li>
+        <li><strong>엑셀 내보내기</strong>: <code>{학급명}_행동특성_평가결과_{YYYYMMDD}.xlsx</code> — 헤더 스타일, 열 너비 자동 조정, 텍스트 줄바꿈</li>
+        <li><strong>1+2학기 전체 복사</strong>: 개행으로 합친 문자열을 클립보드로 복사</li>
+      </ul>
+    </div>
+
+    <div id="s4-8">
+      <h3>4.8 관리자 대시보드</h3>
+      <p><code>admin</code> 계정 로그인 시에만 접근 가능하다.</p>
+      <ul>
+        <li>전체 교사 계정 목록 조회</li>
+        <li>학급별 진행 현황 열람</li>
+        <li>특정 교사 비밀번호 초기화 (기본값: <code>assess1234</code>)</li>
+        <li>교사 계정 삭제 (해당 교사의 학급 데이터도 함께 삭제)</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ─── 5. 보안 ─── -->
+  <section id="s5">
+    <h2><span class="sec-num">05</span> 보안 설계</h2>
+
+    <h3>비밀번호 해시 흐름</h3>
+    <pre><code>[평문 비밀번호]
+    │
+    ▼ SHA-256 (Web Crypto API crypto.subtle.digest)
+[64자리 16진수 해시]
+    │
+    ▼ localStorage 저장
+adminPasswordHash / users[username]</code></pre>
+
+    <h3>API Key 암호화 흐름</h3>
+    <pre><code>[Gemini API Key 평문]
+    │
+    ▼ AES-GCM (12-byte 랜덤 IV, 파생키: SHA-256(교사 비밀번호))
+[IV:암호문 hex 문자열]
+    │
+    ▼ localStorage 저장 (encryptedKey)</code></pre>
+    <p>교사마다 다른 비밀번호로 암호화되므로, 같은 브라우저를 공유해도 타인이 API Key를 복호화하는 것이 불가능하다.</p>
+
+    <h3>GitHub 배포 보안</h3>
+    <ul>
+      <li><code>.gitignore</code>: <code>*.xlsx</code>, <code>classes/</code>, <code>userData/</code>, <code>.env</code> 등 학생 데이터·비밀 파일 제외.</li>
+      <li>개발용 메모 파일(<code>docs/관리자.txt</code>) 삭제 완료.</li>
+      <li>과거 문서에 기재된 비밀번호 문자열 전면 소독 처리.</li>
+    </ul>
+  </section>
+
+  <!-- ─── 6. 데이터 모델 ─── -->
+  <section id="s6">
+    <h2><span class="sec-num">06</span> 데이터 모델</h2>
+
+    <h3>localStorage 키 구조</h3>
+    <table>
+      <thead><tr><th>키</th><th>타입</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td><code>behavior_report_config</code></td><td>AppConfig JSON</td><td>관리자 해시, 교사 계정 맵, API Key, 마지막 학급</td></tr>
+        <tr><td><code>behavior_report_class_{user}_{class}</code></td><td>StudentData[] JSON</td><td>해당 교사·학급의 전체 학생 데이터</td></tr>
+        <tr><td><code>behavior_report_classes_list_{user}</code></td><td>string[] JSON</td><td>해당 교사의 학급 이름 목록</td></tr>
+      </tbody>
+    </table>
+
+    <h3>AppConfig 인터페이스</h3>
+    <pre><code>interface AppConfig {
+  passwordHash?: string;          // (구버전) 단일 교사 해시
+  rememberKey?: boolean;          // API Key 저장 여부
+  encryptedKey?: string;          // AES-GCM 암호화된 API Key
+  lastClass?: string;             // 마지막 선택 학급
+  adminPasswordHash?: string;     // 관리자 비밀번호 SHA-256 해시
+  users?: Record&lt;string, string&gt;; // { 아이디: SHA-256해시 }
+}</code></pre>
+  </section>
+
+  <!-- ─── 7. 서비스 레이어 ─── -->
+  <section id="s7">
+    <h2><span class="sec-num">07</span> 서비스 레이어 상세</h2>
+
+    <h3>webStorage.ts</h3>
+    <ul>
+      <li><code>saveConfig / loadConfig</code>: AppConfig CRUD</li>
+      <li><code>saveClassData / loadClassData / deleteClassData</code>: 학생 데이터 CRUD</li>
+      <li><code>listClasses</code>: 교사별 학급 목록 조회</li>
+      <li><code>saveClassJson</code>: KST 날짜 기반 JSON 파일 다운로드</li>
+      <li><code>loadClassJsonFromFile</code>: FileReader 기반 JSON 복원</li>
+    </ul>
+
+    <h3>webCrypto.ts</h3>
+    <ul>
+      <li><code>hashPassword(password)</code>: <code>crypto.subtle.digest('SHA-256')</code> → hex 문자열</li>
+      <li><code>encryptKey(text, secret)</code>: AES-GCM 암호화 (12-byte 랜덤 IV)</li>
+      <li><code>decryptKey(encryptedText, secret)</code>: AES-GCM 복호화</li>
+    </ul>
+
+    <h3>authService.ts</h3>
+    <ul>
+      <li><code>login()</code>: admin 분기 처리 + 구버전 하위 호환 로직</li>
+      <li><code>register()</code>: 아이디 중복 확인 + 해시 저장</li>
+      <li><code>resetUserPassword()</code>: 비밀번호 <code>assess1234</code>로 초기화</li>
+      <li><code>deleteUser()</code>: 계정·학급 데이터 일괄 삭제</li>
+      <li><code>adminListAllData()</code>: 관리자 대시보드용 전체 데이터 조회</li>
+    </ul>
+
+    <h3>geminiService.ts</h3>
+    <ul>
+      <li>REST API 직접 호출: <code>POST /v1beta/models/{model}:generateContent</code></li>
+      <li><code>systemInstruction</code> 분리 전달 (시스템 프롬프트 + 사용자 프롬프트 이원화)</li>
+      <li>모델별 <code>generationConfig</code> 분기 처리</li>
+      <li>한국어 친화 에러 메시지 파싱 (<code>getFriendlyErrorMessage</code>)</li>
+    </ul>
+
+    <h3>excelService.ts</h3>
+    <ul>
+      <li><code>parseStudentExcelFile()</code>: ArrayBuffer → xlsx 파싱 → <code>StudentInput[]</code></li>
+      <li><code>downloadTemplateExcel()</code>: 빈 양식 xlsx 생성·다운로드</li>
+      <li><code>exportResultsExcel()</code>: 스타일 적용 결과 xlsx 생성·다운로드</li>
+    </ul>
+  </section>
+
+  <!-- ─── 8. 디자인 시스템 ─── -->
+  <section id="s8">
+    <h2><span class="sec-num">08</span> 디자인 시스템</h2>
+    <p>Micro 디자인 시스템(<code>docs/DESIGN(Micro).md</code>) 기반으로 CSS Custom Properties를 설계했다.</p>
+
+    <h3>색상 토큰</h3>
+    <div class="chip-grid">
+      <div class="color-chip"><div class="color-swatch" style="background:#221f1c;"></div>--ink-black #221f1c</div>
+      <div class="color-chip"><div class="color-swatch" style="background:#f5f5f5;border:1px solid #ddd;"></div>--paper-white #f5f5f5</div>
+      <div class="color-chip"><div class="color-swatch" style="background:#518bdb;"></div>--azure-action #518bdb</div>
+      <div class="color-chip"><div class="color-swatch" style="background:#36bab8;"></div>--teal-pulse #36bab8</div>
+      <div class="color-chip"><div class="color-swatch" style="background:#ed6d68;"></div>--coral-marker #ed6d68</div>
+      <div class="color-chip"><div class="color-swatch" style="background:#7efa55;"></div>--live-lime #7efa55</div>
+      <div class="color-chip"><div class="color-swatch" style="background:#1a3a12;"></div>--forest-edge #1a3a12</div>
+    </div>
+
+    <h3>버튼 클래스</h3>
+    <table>
+      <thead><tr><th>클래스</th><th>색상</th><th>사용 버튼</th></tr></thead>
+      <tbody>
+        <tr><td><code>.btn-primary</code></td><td><span class="badge badge-teal">Teal Pulse #36bab8</span></td><td>학생 명단 업로드, +, 영역 탭</td></tr>
+        <tr><td><code>.btn-coral</code></td><td><span class="badge badge-coral">Coral Marker #ed6d68</span></td><td>Gemini AI로 평어 만들기</td></tr>
+        <tr><td><code>.btn-secondary</code></td><td><span class="badge badge-gray">회색 계열</span></td><td>보조 동작 버튼</td></tr>
+      </tbody>
+    </table>
+
+    <h3>폰트 (변경 금지)</h3>
+    <pre><code>--font-sans: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo',
+             'Malgun Gothic', sans-serif;
+--font-mono: 'SF Mono', 'Monaco', 'Consolas', monospace;</code></pre>
+  </section>
+
+  <!-- ─── 9. 프롬프트 ─── -->
+  <section id="s9">
+    <h2><span class="sec-num">09</span> AI 프롬프트 설계</h2>
+
+    <h3>시스템 프롬프트 (System Instruction)</h3>
+    <p>Gemini API의 <code>systemInstruction</code> 필드로 분리 전달되는 역할 정의:</p>
+    <ul>
+      <li>초·중·고 생활기록부 작성 전문가 역할 부여</li>
+      <li>교육부 기재 요령 6대 원칙 내재화:
+        <ol>
+          <li>종결 어미: <code>~함.</code>, <code>~임.</code>, <code>~음.</code>, <code>~됨.</code></li>
+          <li>비교·서열화 표현 금지</li>
+          <li>개인정보 직접 언급 금지</li>
+          <li>의학적 진단명 사용 금지</li>
+          <li>미래지향적 순화 표현 사용</li>
+          <li>사실 기반 구체적 서술</li>
+        </ol>
+      </li>
+    </ul>
+
+    <h3>사용자 프롬프트 구조</h3>
+    <pre><code>[학생 정보]
+- 이름: {name}
+- 성별: {gender}
+
+[선택된 행동특성 키워드]
+인성 영역: {keywords.character}
+학교생활 영역: {keywords.school}
+교과학습 영역: {keywords.learning}
+
+[특이사항 및 관찰 기록]
+{comments}
+
+[1학기 평어 - 2학기 작성 시에만 포함]
+{report1}
+
+[요청사항]
+{semester}학기 행동특성 및 종합의견을 {targetBytes}바이트 내외로 작성하시오.
+문체 스타일: {style}</code></pre>
+
+    <h3>윤문(문장 다듬기) 프롬프트</h3>
+    <ul>
+      <li>기존 평어를 입력으로 전달하여 재작성 요청</li>
+      <li>AI 상투어 목록 명시적 제거 지시</li>
+      <li>byte 범위 제약 (원문 ±15%)</li>
+    </ul>
+  </section>
+
+  <!-- ─── 10. KST ─── -->
+  <section id="s10">
+    <h2><span class="sec-num">10</span> 한국 표준시(KST) 날짜 처리</h2>
+
+    <div class="alert alert-warning">
+      <span class="alert-icon">⚠️</span>
+      <div><strong>문제</strong>: <code>new Date().toISOString()</code>은 UTC 기준이므로, KST(UTC+9) 자정 이전 시간대(00:00~08:59)에 파일을 저장하면 전날 날짜로 파일명이 생성된다.</div>
+    </div>
+
+    <div class="alert alert-success">
+      <span class="alert-icon">✅</span>
+      <div><strong>해결</strong>: <code>Asia/Seoul</code> 타임존을 명시적으로 지정하여 로컬 날짜 컴포넌트를 추출한다.</div>
+    </div>
+
+    <pre><code>// ❌ 잘못된 방법
+const date = new Date();
+const yyyy = date.getFullYear(); // UTC 기준
+
+// ✅ 올바른 방법 (webStorage.ts, excelService.ts)
+const koreaDate = new Date(
+  new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' })
+);
+const yyyy = koreaDate.getFullYear();
+const mm = String(koreaDate.getMonth() + 1).padStart(2, '0');
+const dd = String(koreaDate.getDate()).padStart(2, '0');
+const dateStr = `${yyyy}${mm}${dd}`;
+// 결과: "20260730" (KST 기준)</code></pre>
+  </section>
+
+  <!-- ─── 11. CI/CD ─── -->
+  <section id="s11">
+    <h2><span class="sec-num">11</span> GitHub Actions 배포 파이프라인</h2>
+
+    <div class="alert alert-warning">
+      <span class="alert-icon">⚠️</span>
+      <div><strong>주의</strong>: GitHub이 자동 생성하는 <code>static.yml</code>은 빌드 없이 소스코드 원본을 배포하므로 React 앱에서 빈 화면 문제 발생. 반드시 삭제하고 <code>deploy.yml</code> 단독 사용.</div>
+    </div>
+
+    <h3>워크플로우 흐름 (<code>.github/workflows/deploy.yml</code>)</h3>
+    <pre><code>push to main
+    │
+    ▼ [build job]
+  1. actions/checkout@v4        ← 소스코드 체크아웃
+  2. actions/setup-node@v4      ← Node.js 20 + npm 캐시
+  3. npm ci                     ← 의존성 정확 설치
+  4. npm run build              ← tsc + vite build → ./dist
+  5. actions/configure-pages@v5
+  6. upload-pages-artifact@v3   ← ./dist 업로드
+    │
+    ▼ [deploy job]
+  7. actions/deploy-pages@v4    ← GitHub Pages 배포</code></pre>
+
+    <h3>핵심 설정 (vite.config.ts)</h3>
+    <pre><code>export default defineConfig({
+  plugins: [react()],
+  base: '/growth-note/', // 저장소 이름과 반드시 일치해야 함
+})</code></pre>
+  </section>
+
+  <!-- ─── 12. 이력 ─── -->
+  <section id="s12">
+    <h2><span class="sec-num">12</span> 개발 이력 (버전 히스토리)</h2>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-version">v0.1 — Electron 초기 개발</div>
+        <div class="timeline-desc">데스크톱 앱 최초 개발. 로컬 JSON 파일 기반 데이터 저장. 단일 교사 계정.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-version">v0.2 — 보안 강화</div>
+        <div class="timeline-desc">다중 교사 계정 지원. SHA-256 비밀번호 해싱. AES 기반 API Key 암호화.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-version">v0.3 — 관리자 기능 추가</div>
+        <div class="timeline-desc">관리자 대시보드 추가. 교사 비밀번호 초기화 기능.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-version">v1.0 — 웹 버전 전면 재구축 (2026-07)</div>
+        <div class="timeline-desc">Vite + React + TypeScript 웹 버전으로 전면 재구축. localStorage 기반 데이터 관리. Web Crypto API 암호화.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-version">v1.1 — 디자인 개선 (2026-07-29)</div>
+        <div class="timeline-desc">Micro 디자인 시스템 적용. Teal Pulse·Coral Marker 버튼 컬러 커스터마이징. KST 날짜 처리 수정.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-version">v1.2 — AI 기능 고도화 (2026-07-29)</div>
+        <div class="timeline-desc">Live Lime 선택 키워드 칩 색상 변경. 문체 스타일 드롭다운 추가. 문장 다듬기(윤문) 기능 추가.</div>
+      </div>
+      <div class="timeline-item latest">
+        <div class="timeline-dot"></div>
+        <div class="timeline-version">v1.3 — GitHub Pages 배포 (2026-07-30) ← 최신</div>
+        <div class="timeline-desc">GitHub Actions 자동 배포 파이프라인 구축. 브라우저 타이틀 'GrowthNote'로 변경. HTML lang="ko" 및 meta description SEO 최적화. README.md 사용 설명서 작성.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 13. 개선 과제 ─── -->
+  <section id="s13">
+    <h2><span class="sec-num">13</span> 알려진 이슈 및 향후 개선 과제</h2>
+
+    <h3>현재 알려진 이슈</h3>
+    <table>
+      <thead><tr><th>우선순위</th><th>내용</th><th>영향</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-gray">낮음</span></td><td>JS 번들 크기 1.14MB (gzip 403KB). 코드 스플리팅 미적용.</td><td>초기 로딩 속도</td></tr>
+        <tr><td><span class="badge badge-gray">낮음</span></td><td><code>xlsx-js-style</code> 라이브러리가 번들의 상당 부분 차지</td><td>초기 로딩 속도</td></tr>
+      </tbody>
+    </table>
+
+    <h3>향후 개선 과제</h3>
+    <ol>
+      <li><strong>코드 스플리팅</strong>: <code>build.rolldownOptions.output.codeSplitting</code> 활성화로 초기 번들 분할</li>
+      <li><strong>다국어 지원</strong>: 영어 UI 추가 (포트폴리오 시연용)</li>
+      <li><strong>진행률 통계 시각화</strong>: 학급별 작성 완료율을 차트로 표시</li>
+      <li><strong>학생 사진 첨부</strong>: 이름만으로는 기억이 어려운 경우 사진 참고 기능</li>
+      <li><strong>평어 히스토리</strong>: 학생별 과거 생성 이력 보관·비교 기능</li>
+      <li><strong>키워드 커스터마이징</strong>: 교사가 자체 키워드를 추가·편집하는 설정 화면</li>
+      <li><strong>PWA 지원</strong>: 오프라인 캐싱 및 앱 설치 (Service Worker 적용)</li>
+      <li><strong>인쇄 최적화</strong>: 학급 전체 평어를 A4 용지로 인쇄하는 Print CSS</li>
+    </ol>
+  </section>
+
+</main>
+
+<script>
+  // 사이드바 활성 링크 하이라이트
+  const sections = document.querySelectorAll('section[id], div[id]');
+  const navLinks = document.querySelectorAll('#sidebar nav a');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === '#' + entry.target.id) {
+            link.classList.add('active');
+          }
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
 </body>
 </html>
