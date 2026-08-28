@@ -29,7 +29,7 @@ export const App: React.FC = () => {
   // Gemini Configuration
   const [apiKey, setApiKey] = useState('');
   const [rememberKey, setRememberKey] = useState(false);
-  const [model, setModel] = useState<'gemini-3.6-flash' | 'gemini-3.5-flash' | 'gemini-2.5-flash'>('gemini-3.6-flash');
+  const [model, setModel] = useState<'gemini-3.6-flash' | 'gemini-3.7-flash' | 'gemini-2.5-flash'>('gemini-3.6-flash');
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const [tempApiKey, setTempApiKey] = useState('');
   const [tempRememberKey, setTempRememberKey] = useState(false);
@@ -800,9 +800,9 @@ ${currentReport}`;
               value={model}
               onChange={(e) => setModel(e.target.value as any)}
             >
-              <option value="gemini-3.6-flash">gemini-3.6-flash</option>
-              <option value="gemini-3.5-flash">gemini-3.5-flash</option>
               <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+              <option value="gemini-3.6-flash">gemini-3.6-flash</option>
+              <option value="gemini-3.7-flash">gemini-3.7-flash</option>
             </select>
           </div>
 

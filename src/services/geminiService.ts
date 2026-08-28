@@ -1,7 +1,7 @@
 function getFriendlyErrorMessage(rawMessage: string): string {
   const msg = String(rawMessage);
   if (msg.includes('currently experiencing high demand') || msg.includes('overloaded') || msg.includes('Spikes in demand')) {
-    return '구글 AI 서버에 일시적으로 많은 요청이 몰려 대기 시간이 발생하고 있습니다. 잠시 후(약 5~10초 뒤) 다시 시도해 주시거나, 우측 상단에서 다른 모델(예: gemini-2.5-flash 또는 gemini-3.6-flash)로 변경하여 시도해 주세요.';
+    return '구글 AI 서버에 일시적으로 많은 요청이 몰려 대기 시간이 발생하고 있습니다. 잠시 후(약 5~10초 뒤) 다시 시도해 주시거나, 우측 상단에서 다른 모델(예: gemini-2.5-flash, gemini-3.6-flash 또는 gemini-3.7-flash)로 변경하여 시도해 주세요.';
   }
   if (msg.includes('exhausted') || msg.includes('Quota exceeded') || msg.includes('rate limit')) {
     return 'API 사용 한도(할당량)를 초과했습니다. 잠시 후(약 1분 뒤) 다시 시도해 주시거나, 다른 모델로 변경하여 시도해 주세요.';
@@ -26,7 +26,7 @@ export async function generateReport(options: GenerateOptions): Promise<string> 
   const { model, apiKey, systemInstruction, prompt } = options;
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
-  const isGemini36Flash = model.includes('3.6-flash');
+  const isGemini3Series = model.includes('3.6-flash') || model.includes('3.7-flash');
 
   const requestBody: any = {
     contents: [
@@ -40,7 +40,7 @@ export async function generateReport(options: GenerateOptions): Promise<string> 
     },
   };
 
-  if (isGemini36Flash) {
+  if (isGemini3Series) {
     requestBody.generationConfig = {
       thinkingConfig: {
         thinkingLevel: 'MEDIUM',
@@ -69,7 +69,7 @@ export async function generateReport(options: GenerateOptions): Promise<string> 
         const errJson = JSON.parse(bodyText);
         throw new Error(getFriendlyErrorMessage(errJson.error?.message || bodyText));
       } catch (pErr: any) {
-        if (pErr.message && pErr.message.includes('구글 AI') || pErr.message.includes('API')) {
+        if (pErr.message && (pErr.message.includes('구글 AI') || pErr.message.includes('API'))) {
           throw pErr;
         }
         throw new Error(getFriendlyErrorMessage(bodyText));
@@ -77,7 +77,10 @@ export async function generateReport(options: GenerateOptions): Promise<string> 
     }
 
     const responseJson = JSON.parse(bodyText);
-    const text = responseJson.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const parts = responseJson.candidates?.[0]?.content?.parts || [];
+    // If thinking model returns thought parts (thought: true), filter them out and take the actual response text
+    const actualTextParts = parts.filter((p: any) => !p.thought && p.text).map((p: any) => p.text);
+    const text = actualTextParts.length > 0 ? actualTextParts.join('') : (parts[0]?.text || '');
     return text.trim();
   } catch (err: any) {
     if (err.message && (err.message.includes('API') || err.message.includes('구글 AI'))) {

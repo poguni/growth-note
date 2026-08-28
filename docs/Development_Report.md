@@ -199,16 +199,16 @@ style={{
 #### 지원 모델
 | 모델 | 특징 | 기본값 |
 |:---|:---|:---|
-| `gemini-3.6-flash` | 최신 사고 모델, `thinkingLevel: MEDIUM` | ✅ 기본값 |
+| `gemini-3.6-flash` | 최신 추론 모델, `thinkingLevel: MEDIUM` | ✅ 기본값 |
+| `gemini-3.7-flash` | 고성능 하이브리드 추론 모델, `thinkingLevel: MEDIUM` | — |
 | `gemini-2.5-flash` | 균형형 범용 모델, `temperature: 0.6` | — |
-| `gemini-3.5-flash` | 경량 빠른 모델, `temperature: 0.6` | — |
 
 #### API 호출 구조 (`geminiService.ts`)
 ```typescript
-// gemini-3.6-flash: 사고 모드 활성화
+// gemini-3.6-flash & gemini-3.7-flash: Gemini 3 시리즈 사고(Thinking) 레벨 중간(MEDIUM) 설정
 generationConfig: { thinkingConfig: { thinkingLevel: 'MEDIUM' } }
 
-// 다른 모델: 안정적인 출력 파라미터
+// gemini-2.5-flash: 표준 생성 파라미터
 generationConfig: { temperature: 0.6, topP: 0.95 }
 ```
 
@@ -515,6 +515,7 @@ export default defineConfig({
 | v1.1 | 2026-07-29 | Micro 디자인 시스템 적용. 버튼 컬러(Teal Pulse·Coral Marker) 커스터마이징. |
 | v1.2 | 2026-07-29 | 선택 키워드 칩 색상 Live Lime(`#7efa55`)으로 변경. 문체 스타일 드롭다운 추가. 문장 다듬기(윤문) 기능 추가. |
 | v1.3 | 2026-07-30 | KST 날짜 처리 수정. GitHub Actions 자동 배포 파이프라인 구축. 브라우저 타이틀 'GrowthNote'로 변경. HTML lang="ko" 및 meta description SEO 최적화. |
+| v1.4 | 2026-08-29 | Gemini 모델 라인업 갱신 (gemini-2.5-flash, gemini-3.6-flash 기본값, gemini-3.7-flash 추가). Gemini 3 시리즈 thinkingLevel: MEDIUM 적용 및 생각 과정(thought parts) 파싱 정제. |
 
 ---
 
