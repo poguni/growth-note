@@ -810,24 +810,24 @@ ${currentReport}`;
 
           <div style={{ height: '24px', width: '1px', backgroundColor: 'var(--border)' }} />
 
-          {/* Teacher Account & Change Password */}
+          {/* Teacher Account & Change Password & Logout (Icon-only with Tooltips) */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <div
+              title={`현재 로그인: ${username} 선생님`}
               style={{
-                fontSize: '12px',
-                fontWeight: 600,
-                color: 'var(--text-primary)',
-                padding: '4px 10px',
-                backgroundColor: 'rgba(54, 186, 184, 0.08)',
+                width: '32px',
+                height: '32px',
+                backgroundColor: 'rgba(54, 186, 184, 0.1)',
                 borderRadius: '8px',
-                border: '1px solid rgba(54, 186, 184, 0.2)',
+                border: '1px solid rgba(54, 186, 184, 0.25)',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '5px',
+                justifyContent: 'center',
+                color: 'var(--color-teal-pulse)',
+                cursor: 'default',
               }}
             >
-              <User size={13} color="var(--color-teal-pulse)" />
-              <span>{username} 선생님</span>
+              <User size={18} />
             </div>
 
             <button
@@ -835,41 +835,39 @@ ${currentReport}`;
               className="btn btn-secondary"
               title="비밀번호 변경"
               style={{
-                padding: '6px 10px',
-                fontSize: '12px',
+                width: '32px',
+                height: '32px',
+                padding: 0,
                 borderRadius: '8px',
                 borderColor: 'var(--border)',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '4px',
+                justifyContent: 'center',
                 color: 'var(--text-secondary)',
               }}
             >
-              <Lock size={13} />
-              <span>비밀번호 변경</span>
+              <Lock size={17} />
+            </button>
+
+            <button
+              onClick={handleLogout}
+              className="btn btn-secondary"
+              title="로그아웃"
+              style={{
+                width: '32px',
+                height: '32px',
+                padding: 0,
+                borderRadius: '8px',
+                borderColor: 'var(--border)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'var(--text-secondary)',
+              }}
+            >
+              <LogOut size={17} />
             </button>
           </div>
-
-          <div style={{ height: '24px', width: '1px', backgroundColor: 'var(--border)' }} />
-
-          <button
-            onClick={handleLogout}
-            className="btn btn-secondary"
-            title="로그아웃"
-            style={{
-              padding: '6px 12px',
-              fontSize: '12px',
-              borderRadius: '8px',
-              borderColor: 'var(--border)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              color: 'var(--text-secondary)',
-            }}
-          >
-            <LogOut size={14} />
-            <span>로그아웃</span>
-          </button>
         </div>
       </header>
 
