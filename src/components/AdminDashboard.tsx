@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { User, Users, FolderOpen, BookOpen, Key, LogOut, FileSpreadsheet, CheckCircle, Circle, Trash2, RefreshCw } from 'lucide-react';
+import { User, Users, FolderOpen, BookOpen, Key, LogOut, FileSpreadsheet, CheckCircle, Circle, Trash2, RefreshCw, Lock } from 'lucide-react';
 import type { StudentData } from '../types';
 import { adminListAllData, resetUserPassword, deleteUser } from '../services/authService';
 import { loadClassData, saveClassData, deleteClassData } from '../services/webStorage';
 import { exportResultsExcel } from '../services/excelService';
+import { ChangePasswordModal } from './ChangePasswordModal';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -18,6 +19,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
 
   const [students, setStudents] = useState<StudentData[]>([]);
   const [selectedStudentId, setSelectedStudentId] = useState<number | null>(null);
+  const [showAdminPasswordModal, setShowAdminPasswordModal] = useState(false);
 
   const loadAdminData = () => {
     try {
@@ -255,24 +257,45 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
           </div>
         </div>
 
-        <button
-          onClick={onLogout}
-          className="btn btn-secondary"
-          style={{
-            padding: '6px 12px',
-            fontSize: '12px',
-            borderRadius: '8px',
-            backgroundColor: '#444444',
-            color: '#ffffff',
-            border: '1px solid #555555',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-          }}
-        >
-          <LogOut size={14} />
-          로그아웃
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button
+            onClick={() => setShowAdminPasswordModal(true)}
+            className="btn btn-secondary"
+            style={{
+              padding: '6px 12px',
+              fontSize: '12px',
+              borderRadius: '8px',
+              backgroundColor: '#444444',
+              color: '#ffffff',
+              border: '1px solid #555555',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            <Lock size={14} />
+            관리자 비밀번호 변경
+          </button>
+
+          <button
+            onClick={onLogout}
+            className="btn btn-secondary"
+            style={{
+              padding: '6px 12px',
+              fontSize: '12px',
+              borderRadius: '8px',
+              backgroundColor: '#444444',
+              color: '#ffffff',
+              border: '1px solid #555555',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            <LogOut size={14} />
+            로그아웃
+          </button>
+        </div>
       </header>
 
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
@@ -753,6 +776,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
           )}
         </main>
       </div>
+
+      <ChangePasswordModal
+        isOpen={showAdminPasswordModal}
+        onClose={() => setShowAdminPasswordModal(false)}
+        username="admin"
+        onPasswordChanged={() => {}}
+      />
     </div>
   );
 };

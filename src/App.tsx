@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Key, Save, AlertTriangle, HelpCircle, ZoomIn, ZoomOut, Download, Upload, LogOut } from 'lucide-react';
+import { Key, Save, AlertTriangle, HelpCircle, ZoomIn, ZoomOut, Download, Upload, LogOut, Lock, User } from 'lucide-react';
 import { LoginModal } from './components/LoginModal';
 import { ClassSelector } from './components/ClassSelector';
 import { StudentList } from './components/StudentList';
 import { KeywordSelector } from './components/KeywordSelector';
 import { OutputEditor } from './components/OutputEditor';
 import { AdminDashboard } from './components/AdminDashboard';
+import { ChangePasswordModal } from './components/ChangePasswordModal';
 import iconImage from './assets/icon_3.png';
 import type { StudentData } from './types';
 import { loadConfig, saveConfig, listClasses, loadClassData, saveClassData, saveClassJson, loadClassJsonFromFile } from './services/webStorage';
@@ -31,6 +32,7 @@ export const App: React.FC = () => {
   const [rememberKey, setRememberKey] = useState(false);
   const [model, setModel] = useState<'gemini-3.6-flash' | 'gemini-3.7-flash' | 'gemini-2.5-flash'>('gemini-3.6-flash');
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [tempApiKey, setTempApiKey] = useState('');
   const [tempRememberKey, setTempRememberKey] = useState(false);
 
@@ -808,6 +810,48 @@ ${currentReport}`;
 
           <div style={{ height: '24px', width: '1px', backgroundColor: 'var(--border)' }} />
 
+          {/* Teacher Account & Change Password */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div
+              style={{
+                fontSize: '12px',
+                fontWeight: 600,
+                color: 'var(--text-primary)',
+                padding: '4px 10px',
+                backgroundColor: 'rgba(54, 186, 184, 0.08)',
+                borderRadius: '8px',
+                border: '1px solid rgba(54, 186, 184, 0.2)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+              }}
+            >
+              <User size={13} color="var(--color-teal-pulse)" />
+              <span>{username} 선생님</span>
+            </div>
+
+            <button
+              onClick={() => setShowPasswordModal(true)}
+              className="btn btn-secondary"
+              title="비밀번호 변경"
+              style={{
+                padding: '6px 10px',
+                fontSize: '12px',
+                borderRadius: '8px',
+                borderColor: 'var(--border)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                color: 'var(--text-secondary)',
+              }}
+            >
+              <Lock size={13} />
+              <span>비밀번호 변경</span>
+            </button>
+          </div>
+
+          <div style={{ height: '24px', width: '1px', backgroundColor: 'var(--border)' }} />
+
           <button
             onClick={handleLogout}
             className="btn btn-secondary"
@@ -1048,6 +1092,17 @@ ${currentReport}`;
           </div>
         </div>
       )}
+
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        isOpen={showPasswordModal}
+        onClose={() => setShowPasswordModal(false)}
+        username={username}
+        currentApiKey={apiKey}
+        onPasswordChanged={(newPassword) => {
+          setSessionPassword(newPassword);
+        }}
+      />
     </div>
   );
 };

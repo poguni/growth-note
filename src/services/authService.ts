@@ -1,4 +1,4 @@
-import { hashPassword } from './webCrypto';
+import { hashPassword, encryptKey } from './webCrypto';
 import { loadConfig, saveConfig, listClasses, deleteClassData } from './webStorage';
 
 const ADMIN_ID = 'admin';
@@ -86,6 +86,82 @@ export async function register({ username, password }: { username: string; passw
 
   saveConfig(newConfig);
   return { success: true };
+}
+
+export async function changePassword({
+  username,
+  currentPassword,
+  newPassword,
+  currentApiKey,
+}: {
+  username: string;
+  currentPassword: string;
+  newPassword: string;
+  currentApiKey?: string;
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    const config = loadConfig() || {};
+    const inputHash = await hashPassword(currentPassword);
+
+    if (username === ADMIN_ID) {
+      if (!config.adminPasswordHash || inputHash !== config.adminPasswordHash) {
+        return { success: false, error: '현재 관리자 비밀번호가 일치하지 않습니다.' };
+      }
+      const newAdminHash = await hashPassword(newPassword);
+      saveConfig({
+        ...config,
+        adminPasswordHash: newAdminHash,
+      });
+      return { success: true };
+    }
+
+    const users = config.users || {};
+    let isLegacyUser = false;
+
+    // Check legacy user fallback
+    if (Object.keys(users).length === 0 && config.passwordHash && (username === '교사' || username === '선생님')) {
+      if (inputHash !== config.passwordHash) {
+        return { success: false, error: '현재 비밀번호가 일치하지 않습니다.' };
+      }
+      isLegacyUser = true;
+    } else {
+      const userHash = users[username];
+      if (!userHash) {
+        return { success: false, error: '존재하지 않는 사용자 아이디입니다.' };
+      }
+      if (inputHash !== userHash) {
+        return { success: false, error: '현재 비밀번호가 일치하지 않습니다.' };
+      }
+    }
+
+    const newHash = await hashPassword(newPassword);
+    users[username] = newHash;
+
+    const updatedConfig: any = {
+      ...config,
+      users,
+    };
+
+    if (isLegacyUser || username === '교사' || username === '선생님') {
+      updatedConfig.passwordHash = newHash;
+    }
+
+    // If API key is saved and encrypted, re-encrypt it with the new password
+    if (currentApiKey && config.rememberKey) {
+      try {
+        const newEncryptedKey = await encryptKey(currentApiKey, newPassword);
+        updatedConfig.encryptedKey = newEncryptedKey;
+      } catch (encErr) {
+        console.error('API Key 재암호화 실패:', encErr);
+      }
+    }
+
+    saveConfig(updatedConfig);
+    return { success: true };
+  } catch (err: any) {
+    console.error('비밀번호 변경 실패:', err);
+    return { success: false, error: '비밀번호 변경 처리 중 오류가 발생했습니다: ' + err.message };
+  }
 }
 
 export async function resetUserPassword({ username }: { username: string }) {
