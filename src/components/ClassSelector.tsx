@@ -103,10 +103,10 @@ export const ClassSelector: React.FC<ClassSelectorProps> = ({
       <select
         className="input"
         style={{
-          width: '160px',
-          padding: '6px 10px',
+          width: '112px',
+          padding: '6px 8px',
           borderRadius: '8px',
-          fontSize: '13px',
+          fontSize: '12.5px',
           backgroundColor: '#ffffff',
           fontWeight: 500,
           cursor: 'pointer',

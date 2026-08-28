@@ -790,10 +790,10 @@ ${currentReport}`;
             <select
               className="input"
               style={{
-                width: '180px',
-                padding: '6px 10px',
+                width: '126px',
+                padding: '6px 6px',
                 borderRadius: '8px',
-                fontSize: '12px',
+                fontSize: '11.5px',
                 backgroundColor: '#ffffff',
                 border: '1px solid var(--border)',
                 fontWeight: 500,
